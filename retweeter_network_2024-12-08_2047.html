@@ -1,0 +1,909 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/css/tom-select.min.css" integrity="sha512-43fHB3GLgZfz8QXl1RPQ8O66oIgv3po9cJ5erMt1c4QISq9dYb195T3vr5ImnJPXuVroKcGBPXBFKETW8jrPNQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/js/tom-select.complete.js" integrity="sha512-jeF9CfnvzDiw9G9xiksVjxR2lib44Gnovvkv+3CgCG6NXCD4gqlA5nDAVW5WjpA+i+/zKsUWV5xNEbW1X/HH0Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 1000px;
+                 height: 1000px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 1000px;
+                 height: 1000px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+                <div id="select-menu" class="card-header">
+                    <div class="row no-gutters">
+                        <div class="col-10 pb-2">
+                            <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="selectNode([value]);"
+                            id="select-node"
+                            placeholder="Select node..."
+                            >
+                                <option selected>Select a Node by ID</option>
+                                
+                                    <option value="SarahJaneguru">SarahJaneguru</option>
+                                
+                                    <option value="davidkurten">davidkurten</option>
+                                
+                                    <option value="FoodSaversUK">FoodSaversUK</option>
+                                
+                                    <option value="JaniceW78256134">JaniceW78256134</option>
+                                
+                                    <option value="englandislost">englandislost</option>
+                                
+                                    <option value="respect65">respect65</option>
+                                
+                                    <option value="CarolineCoramUK">CarolineCoramUK</option>
+                                
+                                    <option value="richenergyceo">richenergyceo</option>
+                                
+                                    <option value="SaraHaboubi1">SaraHaboubi1</option>
+                                
+                                    <option value="AngelorumTarot">AngelorumTarot</option>
+                                
+                                    <option value="white_arrow_uk">white_arrow_uk</option>
+                                
+                                    <option value="angelalambert14">angelalambert14</option>
+                                
+                                    <option value="KellyMartin_UK">KellyMartin_UK</option>
+                                
+                                    <option value="Lyndonx">Lyndonx</option>
+                                
+                                    <option value="DanPeacock12">DanPeacock12</option>
+                                
+                                    <option value="DariusVolket">DariusVolket</option>
+                                
+                                    <option value="Keithpoker1">Keithpoker1</option>
+                                
+                                    <option value="Goalkickingguru">Goalkickingguru</option>
+                                
+                                    <option value="jewelsjademedia">jewelsjademedia</option>
+                                
+                                    <option value="Carmilla5">Carmilla5</option>
+                                
+                                    <option value="MarzipanRug">MarzipanRug</option>
+                                
+                                    <option value="clairlemon">clairlemon</option>
+                                
+                                    <option value="JamieRJN">JamieRJN</option>
+                                
+                                    <option value="sunlorrie">sunlorrie</option>
+                                
+                                    <option value="TwainsMustache">TwainsMustache</option>
+                                
+                                    <option value="patricksavalle">patricksavalle</option>
+                                
+                                    <option value="IsraelNewsLinks">IsraelNewsLinks</option>
+                                
+                                    <option value="JackPosobiec">JackPosobiec</option>
+                                
+                                    <option value="Ireland2020">Ireland2020</option>
+                                
+                                    <option value="drsimonegold">drsimonegold</option>
+                                
+                                    <option value="TC1776">TC1776</option>
+                                
+                                    <option value="KassandraKitson">KassandraKitson</option>
+                                
+                                    <option value="BonBee81">BonBee81</option>
+                                
+                                    <option value="SharonShepshan">SharonShepshan</option>
+                                
+                                    <option value="AudaciousPundit">AudaciousPundit</option>
+                                
+                                    <option value="ChickenGate">ChickenGate</option>
+                                
+                                    <option value="naomirwolf">naomirwolf</option>
+                                
+                                    <option value="21WIRE">21WIRE</option>
+                                
+                                    <option value="newstart_2024">newstart_2024</option>
+                                
+                                    <option value="foxblog3">foxblog3</option>
+                                
+                                    <option value="NickMalyon1">NickMalyon1</option>
+                                
+                                    <option value="MarkChangizi">MarkChangizi</option>
+                                
+                                    <option value="DowdEdward">DowdEdward</option>
+                                
+                                    <option value="michaelpsenger">michaelpsenger</option>
+                                
+                                    <option value="CountryGardener">CountryGardener</option>
+                                
+                                    <option value="EzraKahan">EzraKahan</option>
+                                
+                                    <option value="SparkyPatriot">SparkyPatriot</option>
+                                
+                                    <option value="leslibless">leslibless</option>
+                                
+                                    <option value="lisachristinect">lisachristinect</option>
+                                
+                                    <option value="ABCClothing">ABCClothing</option>
+                                
+                                    <option value="HellOnHeels2020">HellOnHeels2020</option>
+                                
+                                    <option value="ckolchacksghost">ckolchacksghost</option>
+                                
+                                    <option value="HomerWhite">HomerWhite</option>
+                                
+                                    <option value="chick2308">chick2308</option>
+                                
+                                    <option value="roccogalatilaw">roccogalatilaw</option>
+                                
+                                    <option value="lisakeb007">lisakeb007</option>
+                                
+                                    <option value="terrywhitneymi">terrywhitneymi</option>
+                                
+                                    <option value="sandra8301">sandra8301</option>
+                                
+                                    <option value="SandraWeeden">SandraWeeden</option>
+                                
+                                    <option value="jonnyhodl">jonnyhodl</option>
+                                
+                                    <option value="theboyjai">theboyjai</option>
+                                
+                                    <option value="abirballan">abirballan</option>
+                                
+                                    <option value="StoneSculptorJN">StoneSculptorJN</option>
+                                
+                                    <option value="TheMFingCOO">TheMFingCOO</option>
+                                
+                                    <option value="kahnkidz">kahnkidz</option>
+                                
+                                    <option value="CharleyTakaya">CharleyTakaya</option>
+                                
+                                    <option value="johncardillo">johncardillo</option>
+                                
+                                    <option value="NoSurrender200">NoSurrender200</option>
+                                
+                                    <option value="mercola">mercola</option>
+                                
+                                    <option value="IndWorldThinker">IndWorldThinker</option>
+                                
+                                    <option value="SizweLo">SizweLo</option>
+                                
+                                    <option value="DaveSchreiber3">DaveSchreiber3</option>
+                                
+                                    <option value="PerspicaciousXY">PerspicaciousXY</option>
+                                
+                                    <option value="BorgerPieter">BorgerPieter</option>
+                                
+                                    <option value="IkNet">IkNet</option>
+                                
+                                    <option value="BelindasHandbag">BelindasHandbag</option>
+                                
+                                    <option value="craigkellyXXX">craigkellyXXX</option>
+                                
+                                    <option value="drcraigwax">drcraigwax</option>
+                                
+                                    <option value="AAPSonline">AAPSonline</option>
+                                
+                                    <option value="TruegritG">TruegritG</option>
+                                
+                                    <option value="greg_scott84">greg_scott84</option>
+                                
+                                    <option value="ArthurCaplan">ArthurCaplan</option>
+                                
+                                    <option value="gorskon">gorskon</option>
+                                
+                                    <option value="doritmi">doritmi</option>
+                                
+                                    <option value="DrJenGunter">DrJenGunter</option>
+                                
+                                    <option value="yesnicksearcy">yesnicksearcy</option>
+                                
+                                    <option value="3boys2dawgs">3boys2dawgs</option>
+                                
+                                    <option value="julesserkin">julesserkin</option>
+                                
+                                    <option value="I_mitochondria">I_mitochondria</option>
+                                
+                                    <option value="goin_nice">goin_nice</option>
+                                
+                                    <option value="CrownSlew">CrownSlew</option>
+                                
+                                    <option value="CommodusJTrump">CommodusJTrump</option>
+                                
+                                    <option value="rdrhwke">rdrhwke</option>
+                                
+                                    <option value="IrexitFreedom">IrexitFreedom</option>
+                                
+                                    <option value="ukmfa1">ukmfa1</option>
+                                
+                                    <option value="DebraBe16141698">DebraBe16141698</option>
+                                
+                                    <option value="WeaponizedNews">WeaponizedNews</option>
+                                
+                                    <option value="HighWireTalk">HighWireTalk</option>
+                                
+                                    <option value="maggiemay2149">maggiemay2149</option>
+                                
+                                    <option value="1984_RebElle">1984_RebElle</option>
+                                
+                                    <option value="_YvonneBurton">_YvonneBurton</option>
+                                
+                                    <option value="LegendaryEnergy">LegendaryEnergy</option>
+                                
+                                    <option value="critica18495985">critica18495985</option>
+                                
+                                    <option value="PatriotGaGa1">PatriotGaGa1</option>
+                                
+                                    <option value="littleapostate">littleapostate</option>
+                                
+                                    <option value="FiorellaIsabelM">FiorellaIsabelM</option>
+                                
+                                    <option value="LandNoli">LandNoli</option>
+                                
+                                    <option value="Demo2020cracy">Demo2020cracy</option>
+                                
+                                    <option value="KathyConWom">KathyConWom</option>
+                                
+                                    <option value="GauteNilsen">GauteNilsen</option>
+                                
+                                    <option value="KarinaMowinckel">KarinaMowinckel</option>
+                                
+                                    <option value="CromwellStuff">CromwellStuff</option>
+                                
+                                    <option value="AlisonBlunt">AlisonBlunt</option>
+                                
+                                    <option value="_InThisTogether">_InThisTogether</option>
+                                
+                                    <option value="katieappleseed7">katieappleseed7</option>
+                                
+                                    <option value="realsb4feelings">realsb4feelings</option>
+                                
+                                    <option value="ImmuneSuper">ImmuneSuper</option>
+                                
+                                    <option value="mlauriat">mlauriat</option>
+                                
+                                    <option value="CenterLeftyPOV">CenterLeftyPOV</option>
+                                
+                                    <option value="nandtara">nandtara</option>
+                                
+                                    <option value="ranjona">ranjona</option>
+                                
+                                    <option value="BasuAshis">BasuAshis</option>
+                                
+                                    <option value="inky_mark">inky_mark</option>
+                                
+                                    <option value="Manny70944327">Manny70944327</option>
+                                
+                                    <option value="NaphiSoc">NaphiSoc</option>
+                                
+                                    <option value="HislopMD">HislopMD</option>
+                                
+                                    <option value="miraaikie">miraaikie</option>
+                                
+                                    <option value="eddiebouncer196">eddiebouncer196</option>
+                                
+                                    <option value="MDinCanada">MDinCanada</option>
+                                
+                                    <option value="sallyKP">sallyKP</option>
+                                
+                                    <option value="coyotedirty">coyotedirty</option>
+                                
+                                    <option value="Seekthetruth101">Seekthetruth101</option>
+                                
+                                    <option value="Digital_kaz">Digital_kaz</option>
+                                
+                                    <option value="ellymelly">ellymelly</option>
+                                
+                                    <option value="kukk44">kukk44</option>
+                                
+                                    <option value="GraTire">GraTire</option>
+                                
+                                    <option value="WeStand4theFlag">WeStand4theFlag</option>
+                                
+                                    <option value="Ginger_Snap_11">Ginger_Snap_11</option>
+                                
+                                    <option value="stand4honor">stand4honor</option>
+                                
+                                    <option value="JohnC32116200">JohnC32116200</option>
+                                
+                                    <option value="Mashwebs">Mashwebs</option>
+                                
+                                    <option value="Patricia_Bantom">Patricia_Bantom</option>
+                                
+                                    <option value="Anthea06274890">Anthea06274890</option>
+                                
+                                    <option value="AppSame">AppSame</option>
+                                
+                                    <option value="BhavikaKapoor5">BhavikaKapoor5</option>
+                                
+                                    <option value="ChemistryWorld">ChemistryWorld</option>
+                                
+                            </select>
+                        </div>
+                        <div class="col-2 pb-2">
+                            <button type="button" class="btn btn-primary btn-block" onclick="neighbourhoodHighlight({nodes: []});">Reset Selection</button>
+                        </div>
+                    </div>
+                </div>
+            
+            
+              <div id="filter-menu" class="card-header">
+                <div class="row no-gutters">
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'item')"
+                            id="select-item"
+                        >
+                        <option value="">Select a network item</option>
+                        <option value="edge">edge</option>
+                        <option value="node">node</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'property')"
+                            id="select-property"
+                        >
+                        <option value="">Select a property...</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            id="select-value"
+                        >
+                        <option value="">Select value(s)...</option>
+                    </select>
+                  </div>
+                  <div class="col-1 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="highlightFilter(filter);">Filter</button>
+                  </div>
+                  <div class="col-2 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="clearFilter(true)">Reset Selection</button>
+                  </div>
+                </div>
+              </div>
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+                  new TomSelect("#select-node",{
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      }
+                  });
+              
+
+              
+                  // explicitly using onItemAdd and this function as we need to save multiple values
+                  let updateValueFilter = function() {
+                      return function () {
+                      filter['value'].push(arguments[0])
+                      }
+                  }
+
+                  let valueControl = new TomSelect("#select-value",{
+                      maxItems: null,
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: updateValueFilter()
+                  });
+
+                  let addValues = function() {
+                      return function () {
+                          // clear the current value options and add the selected attribute values
+                          // tom-select handles duplicates
+                          let selectedProperty = arguments[0];
+                          valueControl.clear();
+                          valueControl.clearOptions();
+                          filter['value'] = []
+                          if (filter['item'] === 'node') {
+                              for (let each in allNodes) {
+                                  valueControl.addOption({
+                                      id:allNodes[each][selectedProperty],
+                                      title:allNodes[each][selectedProperty]
+                                  })
+                              }
+                          }
+                          else if (filter['item'] === 'edge') {
+                              for (let each in allEdges) {
+                                  valueControl.addOption({
+                                      id:allEdges[each][selectedProperty],
+                                      title:allEdges[each][selectedProperty]
+                                  })
+                              }
+                          }
+                      }
+                  };
+
+                  let propControl = new TomSelect("#select-property",{
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addValues()
+                  });
+
+                  let addProperties = function() {
+                      return function () {
+                          // loops through the selected network item and adds the attributes to dropdown
+                          // tom-select handles duplicates
+                          clearFilter(false)
+                          if (arguments[0] === 'edge') {
+                              for (let each in allEdges) {
+                                  if (allEdges.hasOwnProperty(each)) {
+                                      for (let eachProp in allEdges[each]) {
+                                          if (allEdges[each].hasOwnProperty(eachProp)) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                          else if (arguments[0] === 'node') {
+                              for (let each in allNodes) {
+                                  if (allNodes.hasOwnProperty(each)) {
+                                      for (let eachProp in allNodes[each]) {
+                                          if (allNodes[each].hasOwnProperty(eachProp)
+                                              && (eachProp !== 'hidden' && eachProp !== 'savedLabel'
+                                                  && eachProp !== 'hiddenLabel')) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  };
+
+                  let itemControl = new TomSelect("#select-item",{
+                      create: false,
+                      sortField:{
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addProperties()
+                  });
+
+                  function clearFilter(reset) {
+                      // utility function to clear all the selected filter options
+                      // if reset is set to true, the existing filter will be removed
+                      // else, only the dropdown options are cleared
+                      propControl.clear();
+                      propControl.clearOptions();
+                      valueControl.clear();
+                      valueControl.clearOptions();
+                      filter = {
+                          item : '',
+                          property : '',
+                          value : []
+                      }
+                      if (reset) {
+                          itemControl.clear();
+                          filterHighlight({nodes: []})
+                      }
+                  }
+
+                  function updateFilter(value, key) {
+                      // key could be 'item' or 'property' and value is as selected in dropdown
+                      filter[key] = value
+                  }
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#888888", "font": {"color": "white"}, "id": "SarahJaneguru", "label": "SarahJaneguru", "shape": "dot", "size": 5, "title": "SarahJaneguru"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "davidkurten", "label": "davidkurten", "shape": "dot", "size": 19, "title": "davidkurten"}, {"color": "#888888", "font": {"color": "white"}, "id": "FoodSaversUK", "label": "FoodSaversUK", "shape": "dot", "size": 10, "title": "FoodSaversUK"}, {"color": "#888888", "font": {"color": "white"}, "id": "JaniceW78256134", "label": "JaniceW78256134", "shape": "dot", "size": 6, "title": "JaniceW78256134"}, {"color": "#888888", "font": {"color": "white"}, "id": "englandislost", "label": "englandislost", "shape": "dot", "size": 5, "title": "englandislost"}, {"color": "#888888", "font": {"color": "white"}, "id": "respect65", "label": "respect65", "shape": "dot", "size": 12, "title": "respect65"}, {"color": "#888888", "font": {"color": "white"}, "id": "CarolineCoramUK", "label": "CarolineCoramUK", "shape": "dot", "size": 10, "title": "CarolineCoramUK"}, {"color": "#888888", "font": {"color": "white"}, "id": "richenergyceo", "label": "richenergyceo", "shape": "dot", "size": 5, "title": "richenergyceo"}, {"color": "#888888", "font": {"color": "white"}, "id": "SaraHaboubi1", "label": "SaraHaboubi1", "shape": "dot", "size": 6, "title": "SaraHaboubi1"}, {"color": "#888888", "font": {"color": "white"}, "id": "AngelorumTarot", "label": "AngelorumTarot", "shape": "dot", "size": 10, "title": "AngelorumTarot"}, {"color": "#888888", "font": {"color": "white"}, "id": "white_arrow_uk", "label": "white_arrow_uk", "shape": "dot", "size": 6, "title": "white_arrow_uk"}, {"color": "#888888", "font": {"color": "white"}, "id": "angelalambert14", "label": "angelalambert14", "shape": "dot", "size": 6, "title": "angelalambert14"}, {"color": "#888888", "font": {"color": "white"}, "id": "KellyMartin_UK", "label": "KellyMartin_UK", "shape": "dot", "size": 6, "title": "KellyMartin_UK"}, {"color": "#888888", "font": {"color": "white"}, "id": "Lyndonx", "label": "Lyndonx", "shape": "dot", "size": 16, "title": "Lyndonx"}, {"color": "#888888", "font": {"color": "white"}, "id": "DanPeacock12", "label": "DanPeacock12", "shape": "dot", "size": 6, "title": "DanPeacock12"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "DariusVolket", "label": "DariusVolket", "shape": "dot", "size": 8, "title": "DariusVolket"}, {"color": "#888888", "font": {"color": "white"}, "id": "Keithpoker1", "label": "Keithpoker1", "shape": "dot", "size": 6, "title": "Keithpoker1"}, {"color": "#888888", "font": {"color": "white"}, "id": "Goalkickingguru", "label": "Goalkickingguru", "shape": "dot", "size": 7, "title": "Goalkickingguru"}, {"color": "#888888", "font": {"color": "white"}, "id": "jewelsjademedia", "label": "jewelsjademedia", "shape": "dot", "size": 18, "title": "jewelsjademedia"}, {"color": "#888888", "font": {"color": "white"}, "id": "Carmilla5", "label": "Carmilla5", "shape": "dot", "size": 5, "title": "Carmilla5"}, {"color": "#888888", "font": {"color": "white"}, "id": "MarzipanRug", "label": "MarzipanRug", "shape": "dot", "size": 5, "title": "MarzipanRug"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "clairlemon", "label": "clairlemon", "shape": "dot", "size": 24, "title": "clairlemon"}, {"color": "#888888", "font": {"color": "white"}, "id": "JamieRJN", "label": "JamieRJN", "shape": "dot", "size": 5, "title": "JamieRJN"}, {"color": "#888888", "font": {"color": "white"}, "id": "sunlorrie", "label": "sunlorrie", "shape": "dot", "size": 16, "title": "sunlorrie"}, {"color": "#888888", "font": {"color": "white"}, "id": "TwainsMustache", "label": "TwainsMustache", "shape": "dot", "size": 6, "title": "TwainsMustache"}, {"color": "#888888", "font": {"color": "white"}, "id": "patricksavalle", "label": "patricksavalle", "shape": "dot", "size": 10, "title": "patricksavalle"}, {"color": "#888888", "font": {"color": "white"}, "id": "IsraelNewsLinks", "label": "IsraelNewsLinks", "shape": "dot", "size": 6, "title": "IsraelNewsLinks"}, {"color": "#888888", "font": {"color": "white"}, "id": "JackPosobiec", "label": "JackPosobiec", "shape": "dot", "size": 82, "title": "JackPosobiec"}, {"color": "#888888", "font": {"color": "white"}, "id": "Ireland2020", "label": "Ireland2020", "shape": "dot", "size": 6, "title": "Ireland2020"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "drsimonegold", "label": "drsimonegold", "shape": "dot", "size": 45, "title": "drsimonegold"}, {"color": "#888888", "font": {"color": "white"}, "id": "TC1776", "label": "TC1776", "shape": "dot", "size": 5, "title": "TC1776"}, {"color": "#888888", "font": {"color": "white"}, "id": "KassandraKitson", "label": "KassandraKitson", "shape": "dot", "size": 5, "title": "KassandraKitson"}, {"color": "#888888", "font": {"color": "white"}, "id": "BonBee81", "label": "BonBee81", "shape": "dot", "size": 5, "title": "BonBee81"}, {"color": "#888888", "font": {"color": "white"}, "id": "SharonShepshan", "label": "SharonShepshan", "shape": "dot", "size": 5, "title": "SharonShepshan"}, {"color": "#888888", "font": {"color": "white"}, "id": "AudaciousPundit", "label": "AudaciousPundit", "shape": "dot", "size": 5, "title": "AudaciousPundit"}, {"color": "#888888", "font": {"color": "white"}, "id": "ChickenGate", "label": "ChickenGate", "shape": "dot", "size": 7, "title": "ChickenGate"}, {"color": "#888888", "font": {"color": "white"}, "id": "naomirwolf", "label": "naomirwolf", "shape": "dot", "size": 33, "title": "naomirwolf"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "21WIRE", "label": "21WIRE", "shape": "dot", "size": 20, "title": "21WIRE"}, {"color": "#888888", "font": {"color": "white"}, "id": "newstart_2024", "label": "newstart_2024", "shape": "dot", "size": 23, "title": "newstart_2024"}, {"color": "#888888", "font": {"color": "white"}, "id": "foxblog3", "label": "foxblog3", "shape": "dot", "size": 7, "title": "foxblog3"}, {"color": "#888888", "font": {"color": "white"}, "id": "NickMalyon1", "label": "NickMalyon1", "shape": "dot", "size": 5, "title": "NickMalyon1"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "MarkChangizi", "label": "MarkChangizi", "shape": "dot", "size": 12, "title": "MarkChangizi"}, {"color": "#888888", "font": {"color": "white"}, "id": "DowdEdward", "label": "DowdEdward", "shape": "dot", "size": 28, "title": "DowdEdward"}, {"color": "#888888", "font": {"color": "white"}, "id": "michaelpsenger", "label": "michaelpsenger", "shape": "dot", "size": 20, "title": "michaelpsenger"}, {"color": "#888888", "font": {"color": "white"}, "id": "CountryGardener", "label": "CountryGardener", "shape": "dot", "size": 6, "title": "CountryGardener"}, {"color": "#888888", "font": {"color": "white"}, "id": "EzraKahan", "label": "EzraKahan", "shape": "dot", "size": 7, "title": "EzraKahan"}, {"color": "#888888", "font": {"color": "white"}, "id": "SparkyPatriot", "label": "SparkyPatriot", "shape": "dot", "size": 7, "title": "SparkyPatriot"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "leslibless", "label": "leslibless", "shape": "dot", "size": 34, "title": "leslibless"}, {"color": "#888888", "font": {"color": "white"}, "id": "lisachristinect", "label": "lisachristinect", "shape": "dot", "size": 10, "title": "lisachristinect"}, {"color": "#888888", "font": {"color": "white"}, "id": "ABCClothing", "label": "ABCClothing", "shape": "dot", "size": 7, "title": "ABCClothing"}, {"color": "#888888", "font": {"color": "white"}, "id": "HellOnHeels2020", "label": "HellOnHeels2020", "shape": "dot", "size": 14, "title": "HellOnHeels2020"}, {"color": "#888888", "font": {"color": "white"}, "id": "ckolchacksghost", "label": "ckolchacksghost", "shape": "dot", "size": 5, "title": "ckolchacksghost"}, {"color": "#888888", "font": {"color": "white"}, "id": "HomerWhite", "label": "HomerWhite", "shape": "dot", "size": 7, "title": "HomerWhite"}, {"color": "#888888", "font": {"color": "white"}, "id": "chick2308", "label": "chick2308", "shape": "dot", "size": 6, "title": "chick2308"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "roccogalatilaw", "label": "roccogalatilaw", "shape": "dot", "size": 12, "title": "roccogalatilaw"}, {"color": "#888888", "font": {"color": "white"}, "id": "lisakeb007", "label": "lisakeb007", "shape": "dot", "size": 5, "title": "lisakeb007"}, {"color": "#888888", "font": {"color": "white"}, "id": "terrywhitneymi", "label": "terrywhitneymi", "shape": "dot", "size": 7, "title": "terrywhitneymi"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "sandra8301", "label": "sandra8301", "shape": "dot", "size": 6, "title": "sandra8301"}, {"color": "#888888", "font": {"color": "white"}, "id": "SandraWeeden", "label": "SandraWeeden", "shape": "dot", "size": 11, "title": "SandraWeeden"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "jonnyhodl", "label": "jonnyhodl", "shape": "dot", "size": 4, "title": "jonnyhodl"}, {"color": "#888888", "font": {"color": "white"}, "id": "theboyjai", "label": "theboyjai", "shape": "dot", "size": 5, "title": "theboyjai"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "abirballan", "label": "abirballan", "shape": "dot", "size": 10, "title": "abirballan"}, {"color": "#888888", "font": {"color": "white"}, "id": "StoneSculptorJN", "label": "StoneSculptorJN", "shape": "dot", "size": 9, "title": "StoneSculptorJN"}, {"color": "#888888", "font": {"color": "white"}, "id": "TheMFingCOO", "label": "TheMFingCOO", "shape": "dot", "size": 9, "title": "TheMFingCOO"}, {"color": "#888888", "font": {"color": "white"}, "id": "kahnkidz", "label": "kahnkidz", "shape": "dot", "size": 6, "title": "kahnkidz"}, {"color": "#888888", "font": {"color": "white"}, "id": "CharleyTakaya", "label": "CharleyTakaya", "shape": "dot", "size": 9, "title": "CharleyTakaya"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "johncardillo", "label": "johncardillo", "shape": "dot", "size": 28, "title": "johncardillo"}, {"color": "#888888", "font": {"color": "white"}, "id": "NoSurrender200", "label": "NoSurrender200", "shape": "dot", "size": 5, "title": "NoSurrender200"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "mercola", "label": "mercola", "shape": "dot", "size": 32, "title": "mercola"}, {"color": "#888888", "font": {"color": "white"}, "id": "IndWorldThinker", "label": "IndWorldThinker", "shape": "dot", "size": 12, "title": "IndWorldThinker"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "SizweLo", "label": "SizweLo", "shape": "dot", "size": 15, "title": "SizweLo"}, {"color": "#888888", "font": {"color": "white"}, "id": "DaveSchreiber3", "label": "DaveSchreiber3", "shape": "dot", "size": 14, "title": "DaveSchreiber3"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "PerspicaciousXY", "label": "PerspicaciousXY", "shape": "dot", "size": 10, "title": "PerspicaciousXY"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "BorgerPieter", "label": "BorgerPieter", "shape": "dot", "size": 8, "title": "BorgerPieter"}, {"color": "#888888", "font": {"color": "white"}, "id": "IkNet", "label": "IkNet", "shape": "dot", "size": 9, "title": "IkNet"}, {"color": "#888888", "font": {"color": "white"}, "id": "BelindasHandbag", "label": "BelindasHandbag", "shape": "dot", "size": 7, "title": "BelindasHandbag"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "craigkellyXXX", "label": "craigkellyXXX", "shape": "dot", "size": 18, "title": "craigkellyXXX"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "drcraigwax", "label": "drcraigwax", "shape": "dot", "size": 9, "title": "drcraigwax"}, {"color": "#888888", "font": {"color": "white"}, "id": "AAPSonline", "label": "AAPSonline", "shape": "dot", "size": 10, "title": "AAPSonline"}, {"color": "#888888", "font": {"color": "white"}, "id": "TruegritG", "label": "TruegritG", "shape": "dot", "size": 7, "title": "TruegritG"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "greg_scott84", "label": "greg_scott84", "shape": "dot", "size": 7, "title": "greg_scott84"}, {"color": "#888888", "font": {"color": "white"}, "id": "ArthurCaplan", "label": "ArthurCaplan", "shape": "dot", "size": 6, "title": "ArthurCaplan"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "gorskon", "label": "gorskon", "shape": "dot", "size": 13, "title": "gorskon"}, {"color": "#888888", "font": {"color": "white"}, "id": "doritmi", "label": "doritmi", "shape": "dot", "size": 5, "title": "doritmi"}, {"color": "#888888", "font": {"color": "white"}, "id": "DrJenGunter", "label": "DrJenGunter", "shape": "dot", "size": 30, "title": "DrJenGunter"}, {"color": "#888888", "font": {"color": "white"}, "id": "yesnicksearcy", "label": "yesnicksearcy", "shape": "dot", "size": 20, "title": "yesnicksearcy"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "3boys2dawgs", "label": "3boys2dawgs", "shape": "dot", "size": 1, "title": "3boys2dawgs"}, {"color": "#888888", "font": {"color": "white"}, "id": "julesserkin", "label": "julesserkin", "shape": "dot", "size": 7, "title": "julesserkin"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "I_mitochondria", "label": "I_mitochondria", "shape": "dot", "size": 4, "title": "I_mitochondria"}, {"color": "#888888", "font": {"color": "white"}, "id": "goin_nice", "label": "goin_nice", "shape": "dot", "size": 8, "title": "goin_nice"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "CrownSlew", "label": "CrownSlew", "shape": "dot", "size": 6, "title": "CrownSlew"}, {"color": "#888888", "font": {"color": "white"}, "id": "CommodusJTrump", "label": "CommodusJTrump", "shape": "dot", "size": 8, "title": "CommodusJTrump"}, {"color": "#888888", "font": {"color": "white"}, "id": "rdrhwke", "label": "rdrhwke", "shape": "dot", "size": 14, "title": "rdrhwke"}, {"color": "#888888", "font": {"color": "white"}, "id": "IrexitFreedom", "label": "IrexitFreedom", "shape": "dot", "size": 10, "title": "IrexitFreedom"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "ukmfa1", "label": "ukmfa1", "shape": "dot", "size": 7, "title": "ukmfa1"}, {"color": "#888888", "font": {"color": "white"}, "id": "DebraBe16141698", "label": "DebraBe16141698", "shape": "dot", "size": 5, "title": "DebraBe16141698"}, {"color": "#888888", "font": {"color": "white"}, "id": "WeaponizedNews", "label": "WeaponizedNews", "shape": "dot", "size": 5, "title": "WeaponizedNews"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "HighWireTalk", "label": "HighWireTalk", "shape": "dot", "size": 22, "title": "HighWireTalk"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "maggiemay2149", "label": "maggiemay2149", "shape": "dot", "size": 1, "title": "maggiemay2149"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "1984_RebElle", "label": "1984_RebElle", "shape": "dot", "size": 9, "title": "1984_RebElle"}, {"color": "#888888", "font": {"color": "white"}, "id": "_YvonneBurton", "label": "_YvonneBurton", "shape": "dot", "size": 5, "title": "_YvonneBurton"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "LegendaryEnergy", "label": "LegendaryEnergy", "shape": "dot", "size": 27, "title": "LegendaryEnergy"}, {"color": "#888888", "font": {"color": "white"}, "id": "critica18495985", "label": "critica18495985", "shape": "dot", "size": 9, "title": "critica18495985"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "PatriotGaGa1", "label": "PatriotGaGa1", "shape": "dot", "size": 6, "title": "PatriotGaGa1"}, {"color": "#888888", "font": {"color": "white"}, "id": "littleapostate", "label": "littleapostate", "shape": "dot", "size": 12, "title": "littleapostate"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "FiorellaIsabelM", "label": "FiorellaIsabelM", "shape": "dot", "size": 22, "title": "FiorellaIsabelM"}, {"color": "#888888", "font": {"color": "white"}, "id": "LandNoli", "label": "LandNoli", "shape": "dot", "size": 23, "title": "LandNoli"}, {"color": "#888888", "font": {"color": "white"}, "id": "Demo2020cracy", "label": "Demo2020cracy", "shape": "dot", "size": 13, "title": "Demo2020cracy"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "KathyConWom", "label": "KathyConWom", "shape": "dot", "size": 9, "title": "KathyConWom"}, {"color": "#888888", "font": {"color": "white"}, "id": "GauteNilsen", "label": "GauteNilsen", "shape": "dot", "size": 5, "title": "GauteNilsen"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "KarinaMowinckel", "label": "KarinaMowinckel", "shape": "dot", "size": 2, "title": "KarinaMowinckel"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "CromwellStuff", "label": "CromwellStuff", "shape": "dot", "size": 11, "title": "CromwellStuff"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "AlisonBlunt", "label": "AlisonBlunt", "shape": "dot", "size": 4, "title": "AlisonBlunt"}, {"color": "#888888", "font": {"color": "white"}, "id": "_InThisTogether", "label": "_InThisTogether", "shape": "dot", "size": 6, "title": "_InThisTogether"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "katieappleseed7", "label": "katieappleseed7", "shape": "dot", "size": 6, "title": "katieappleseed7"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "realsb4feelings", "label": "realsb4feelings", "shape": "dot", "size": 3, "title": "realsb4feelings"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "ImmuneSuper", "label": "ImmuneSuper", "shape": "dot", "size": 3, "title": "ImmuneSuper"}, {"color": "#888888", "font": {"color": "white"}, "id": "mlauriat", "label": "mlauriat", "shape": "dot", "size": 7, "title": "mlauriat"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "CenterLeftyPOV", "label": "CenterLeftyPOV", "shape": "dot", "size": 5, "title": "CenterLeftyPOV"}, {"color": "#888888", "font": {"color": "white"}, "id": "nandtara", "label": "nandtara", "shape": "dot", "size": 6, "title": "nandtara"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "ranjona", "label": "ranjona", "shape": "dot", "size": 9, "title": "ranjona"}, {"color": "#888888", "font": {"color": "white"}, "id": "BasuAshis", "label": "BasuAshis", "shape": "dot", "size": 6, "title": "BasuAshis"}, {"color": "#888888", "font": {"color": "white"}, "id": "inky_mark", "label": "inky_mark", "shape": "dot", "size": 7, "title": "inky_mark"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "Manny70944327", "label": "Manny70944327", "shape": "dot", "size": 2, "title": "Manny70944327"}, {"color": "#888888", "font": {"color": "white"}, "id": "NaphiSoc", "label": "NaphiSoc", "shape": "dot", "size": 10, "title": "NaphiSoc"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "HislopMD", "label": "HislopMD", "shape": "dot", "size": 5, "title": "HislopMD"}, {"color": "#888888", "font": {"color": "white"}, "id": "miraaikie", "label": "miraaikie", "shape": "dot", "size": 5, "title": "miraaikie"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "eddiebouncer196", "label": "eddiebouncer196", "shape": "dot", "size": 5, "title": "eddiebouncer196"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "MDinCanada", "label": "MDinCanada", "shape": "dot", "size": 8, "title": "MDinCanada"}, {"color": "#888888", "font": {"color": "white"}, "id": "sallyKP", "label": "sallyKP", "shape": "dot", "size": 6, "title": "sallyKP"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "coyotedirty", "label": "coyotedirty", "shape": "dot", "size": 3, "title": "coyotedirty"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "Seekthetruth101", "label": "Seekthetruth101", "shape": "dot", "size": 11, "title": "Seekthetruth101"}, {"color": "#888888", "font": {"color": "white"}, "id": "Digital_kaz", "label": "Digital_kaz", "shape": "dot", "size": 5, "title": "Digital_kaz"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "ellymelly", "label": "ellymelly", "shape": "dot", "size": 14, "title": "ellymelly"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "kukk44", "label": "kukk44", "shape": "dot", "size": 7, "title": "kukk44"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "GraTire", "label": "GraTire", "shape": "dot", "size": 2, "title": "GraTire"}, {"color": "#888888", "font": {"color": "white"}, "id": "WeStand4theFlag", "label": "WeStand4theFlag", "shape": "dot", "size": 11, "title": "WeStand4theFlag"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "Ginger_Snap_11", "label": "Ginger_Snap_11", "shape": "dot", "size": 3, "title": "Ginger_Snap_11"}, {"color": "#888888", "font": {"color": "white"}, "id": "stand4honor", "label": "stand4honor", "shape": "dot", "size": 8, "title": "stand4honor"}, {"color": "#888888", "font": {"color": "white"}, "id": "JohnC32116200", "label": "JohnC32116200", "shape": "dot", "size": 9, "title": "JohnC32116200"}, {"color": "#888888", "font": {"color": "white"}, "id": "Mashwebs", "label": "Mashwebs", "shape": "dot", "size": 7, "title": "Mashwebs"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "Patricia_Bantom", "label": "Patricia_Bantom", "shape": "dot", "size": 10, "title": "Patricia_Bantom"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "Anthea06274890", "label": "Anthea06274890", "shape": "dot", "size": 5, "title": "Anthea06274890"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "AppSame", "label": "AppSame", "shape": "dot", "size": 27, "title": "AppSame"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "BhavikaKapoor5", "label": "BhavikaKapoor5", "shape": "dot", "size": 14, "title": "BhavikaKapoor5"}, {"color": "#FF0000", "font": {"color": "white"}, "id": "ChemistryWorld", "label": "ChemistryWorld", "shape": "dot", "size": 33, "title": "ChemistryWorld"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#FF0000", "from": "davidkurten", "to": "SarahJaneguru", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "davidkurten", "to": "FoodSaversUK", "width": 10}, {"arrows": "to", "color": "#FF0000", "from": "davidkurten", "to": "JaniceW78256134", "width": 10}, {"arrows": "to", "color": "#FF0000", "from": "davidkurten", "to": "englandislost", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "davidkurten", "to": "respect65", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "davidkurten", "to": "CarolineCoramUK", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "davidkurten", "to": "richenergyceo", "width": 10}, {"arrows": "to", "color": "#FF0000", "from": "davidkurten", "to": "SaraHaboubi1", "width": 10}, {"arrows": "to", "color": "#FF0000", "from": "davidkurten", "to": "AngelorumTarot", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "davidkurten", "to": "white_arrow_uk", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "davidkurten", "to": "angelalambert14", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "davidkurten", "to": "KellyMartin_UK", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "davidkurten", "to": "Lyndonx", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "SaraHaboubi1", "to": "AngelorumTarot", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "DariusVolket", "to": "DanPeacock12", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "DariusVolket", "to": "Keithpoker1", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "DariusVolket", "to": "Goalkickingguru", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "DariusVolket", "to": "jewelsjademedia", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "DariusVolket", "to": "Carmilla5", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "DariusVolket", "to": "white_arrow_uk", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "Carmilla5", "to": "AngelorumTarot", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "clairlemon", "to": "MarzipanRug", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "clairlemon", "to": "JamieRJN", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "clairlemon", "to": "sunlorrie", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "clairlemon", "to": "TwainsMustache", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "clairlemon", "to": "patricksavalle", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "clairlemon", "to": "IsraelNewsLinks", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "clairlemon", "to": "JackPosobiec", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "drsimonegold", "to": "Ireland2020", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "drsimonegold", "to": "TC1776", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "drsimonegold", "to": "FoodSaversUK", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "drsimonegold", "to": "KassandraKitson", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "drsimonegold", "to": "BonBee81", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "drsimonegold", "to": "SharonShepshan", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "drsimonegold", "to": "AudaciousPundit", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "drsimonegold", "to": "CarolineCoramUK", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "drsimonegold", "to": "ChickenGate", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "21WIRE", "to": "naomirwolf", "width": 10}, {"arrows": "to", "color": "#FF0000", "from": "21WIRE", "to": "newstart_2024", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "21WIRE", "to": "foxblog3", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "21WIRE", "to": "AngelorumTarot", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "21WIRE", "to": "NickMalyon1", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "MarkChangizi", "to": "JamieRJN", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "MarkChangizi", "to": "DowdEdward", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "MarkChangizi", "to": "BonBee81", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "MarkChangizi", "to": "michaelpsenger", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "MarkChangizi", "to": "CountryGardener", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "MarkChangizi", "to": "EzraKahan", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "MarkChangizi", "to": "naomirwolf", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "MarkChangizi", "to": "AngelorumTarot", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "leslibless", "to": "SparkyPatriot", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "leslibless", "to": "lisachristinect", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "leslibless", "to": "ABCClothing", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "leslibless", "to": "HellOnHeels2020", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "leslibless", "to": "ckolchacksghost", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "leslibless", "to": "HomerWhite", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "roccogalatilaw", "to": "chick2308", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "roccogalatilaw", "to": "respect65", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "roccogalatilaw", "to": "lisakeb007", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "roccogalatilaw", "to": "TC1776", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "roccogalatilaw", "to": "JaniceW78256134", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "sandra8301", "to": "terrywhitneymi", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "jonnyhodl", "to": "SandraWeeden", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "jonnyhodl", "to": "angelalambert14", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "jonnyhodl", "to": "theboyjai", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "abirballan", "to": "JaniceW78256134", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "abirballan", "to": "Ireland2020", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "abirballan", "to": "StoneSculptorJN", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "abirballan", "to": "TheMFingCOO", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "abirballan", "to": "kahnkidz", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "johncardillo", "to": "CharleyTakaya", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "johncardillo", "to": "NoSurrender200", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "mercola", "to": "JaniceW78256134", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "IndWorldThinker", "to": "LandNoli", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "SizweLo", "to": "IndWorldThinker", "width": 10}, {"arrows": "to", "color": "#FF0000", "from": "PerspicaciousXY", "to": "DaveSchreiber3", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "BorgerPieter", "to": "newstart_2024", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "BorgerPieter", "to": "IkNet", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "craigkellyXXX", "to": "BelindasHandbag", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "drcraigwax", "to": "KassandraKitson", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "drcraigwax", "to": "AAPSonline", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "AAPSonline", "to": "CountryGardener", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "greg_scott84", "to": "TruegritG", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "gorskon", "to": "ArthurCaplan", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "gorskon", "to": "doritmi", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "gorskon", "to": "DrJenGunter", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "3boys2dawgs", "to": "yesnicksearcy", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "I_mitochondria", "to": "julesserkin", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "I_mitochondria", "to": "CountryGardener", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "CrownSlew", "to": "goin_nice", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "CrownSlew", "to": "CommodusJTrump", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "CrownSlew", "to": "rdrhwke", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "ukmfa1", "to": "IrexitFreedom", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "ukmfa1", "to": "DebraBe16141698", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "HighWireTalk", "to": "WeaponizedNews", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "maggiemay2149", "to": "DebraBe16141698", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "maggiemay2149", "to": "angelalambert14", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "1984_RebElle", "to": "angelalambert14", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "LegendaryEnergy", "to": "_YvonneBurton", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "LegendaryEnergy", "to": "critica18495985", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "PatriotGaGa1", "to": "CommodusJTrump", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "PatriotGaGa1", "to": "rdrhwke", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "FiorellaIsabelM", "to": "littleapostate", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "KathyConWom", "to": "Demo2020cracy", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "KarinaMowinckel", "to": "GauteNilsen", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "CromwellStuff", "to": "JaniceW78256134", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "CromwellStuff", "to": "angelalambert14", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "AlisonBlunt", "to": "newstart_2024", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "AlisonBlunt", "to": "_InThisTogether", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "katieappleseed7", "to": "DanPeacock12", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "realsb4feelings", "to": "NickMalyon1", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "ImmuneSuper", "to": "newstart_2024", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "CenterLeftyPOV", "to": "mlauriat", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "ranjona", "to": "nandtara", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "ranjona", "to": "BasuAshis", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "Manny70944327", "to": "inky_mark", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "Manny70944327", "to": "CountryGardener", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "HislopMD", "to": "NaphiSoc", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "eddiebouncer196", "to": "miraaikie", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "MDinCanada", "to": "CountryGardener", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "coyotedirty", "to": "sallyKP", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "Seekthetruth101", "to": "DariusVolket", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "ellymelly", "to": "Digital_kaz", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "kukk44", "to": "nandtara", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "GraTire", "to": "SaraHaboubi1", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "GraTire", "to": "Ireland2020", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "Ginger_Snap_11", "to": "WeStand4theFlag", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "Ginger_Snap_11", "to": "stand4honor", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "Ginger_Snap_11", "to": "JohnC32116200", "width": 5}, {"arrows": "to", "color": "#FF0000", "from": "Patricia_Bantom", "to": "Mashwebs", "width": 5}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"nodes": {"font": {"size": 30}}, "physics": {"enabled": true, "solver": "forceAtlas2Based", "repulsion": {"gravitationalConstant": -50, "centralGravity": 0.2, "springLength": 250, "springConstant": 0.05, "nodeDistance": 100, "damping": 0.09}}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+                    network.on("selectNode", neighbourhoodHighlight);
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
