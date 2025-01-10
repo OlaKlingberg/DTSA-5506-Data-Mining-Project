@@ -1,5 +1,5 @@
 # Vaccine Misinformation – A Twitter Pandemic
-Final project in the course DTSA-5506 Data Mining Project, at University of Colorado Boulder
+Final project in the course *Data Mining Project* (DTSA-5506), at University of Colorado Boulder
 
 ## ABSTRACT 
 In this project, I investigate tweets containing misinformation about the COVID-19 vaccines. 
