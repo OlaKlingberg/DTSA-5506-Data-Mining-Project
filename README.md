@@ -11,6 +11,7 @@ The project has two parts:
 ## Repository Content
 * [Vaccine Misinformation - A Twitter Pandemic. Report](https://olaklingberg.github.io/Vaccine-Misinformation/Vaccine%20Misinformation%20%E2%80%93%20A%20Twitter%20Pandemic.%20Report.pdf)
 * [Vaccine Misinformation - A Twitter Pandemic. Slide Presentation](https://olaklingberg.github.io/Vaccine-Misinformation/Vaccine%20Misinformation%20%E2%80%93%20A%20Twitter%20Pandemic.%20Presentation.pdf)
-* [Topics in tweets containing vaccine misinformation - Intertopic Distance Map](https://olaklingberg.github.io/Vaccine-Misinformation/visualized_clusters_2024-12-10_0008.html)
-* [Topics in tweets NOT containing vaccine misinformation - Intertopic Distance Map](https://olaklingberg.github.io/Vaccine-Misinformation/visualized_clusters_2024-12-10_0048.html)
-* [Network graph over the main misinformers](https://olaklingberg.github.io/Vaccine-Misinformation/retweeter_network_2024-12-08_2047.html)
+* Images linked to from the report:
+  * [Topics in tweets containing vaccine misinformation - Intertopic Distance Map](https://olaklingberg.github.io/Vaccine-Misinformation/visualized_clusters_2024-12-10_0008.html)
+  * [Topics in tweets NOT containing vaccine misinformation - Intertopic Distance Map](https://olaklingberg.github.io/Vaccine-Misinformation/visualized_clusters_2024-12-10_0048.html)
+  * [Network graph over the main misinformers](https://olaklingberg.github.io/Vaccine-Misinformation/retweeter_network_2024-12-08_2047.html)
