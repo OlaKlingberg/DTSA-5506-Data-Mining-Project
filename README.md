@@ -18,7 +18,7 @@ The data comes from the study [ANTi-Vax: a novel Twitter dataset for COVID-19 va
 #### Misinformation Topics
 Out of the nine topics identified in the misinformation tweets, seven included *experimental* among their salient terms, indicating the degree to which the idea that the vaccines were experimental dominated the misinformation.
 
-![image](https://github.com/user-attachments/assets/0893bac5-9d9c-445a-974e-c300f88461bb)
+![image](https://github.com/user-attachments/assets/271f3836-ed4b-44c6-9306-e967a8f7f636)
 
 #### Non-Misinformation Topics
 Out of the five topics identified in the tweets not containing misinformation, three had *worry* among their salient terms.
