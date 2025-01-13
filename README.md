@@ -14,11 +14,13 @@ The data comes from the study [ANTi-Vax: a novel Twitter dataset for COVID-19 va
 * **Network Analysis**: Constructs and analyzes a network of the main spreaders of vaccine misinformation to understand their influence and reach.
 
 ## Key Results
-### Topic modeling
+### Topic Modeling
+#### Misinformation Topics
 Out of the nine topics identified in the misinformation tweets, seven included *experimental* among their salient terms, indicating the degree to which the idea that the vaccines were experimental dominated the misinformation.
 
 [Misinformation topics](https://github.com/user-attachments/assets/8638cbed-3c84-49f9-9936-93a1f31c3704)
 
+#### Non-Misinformation Topics
 Out of the five topics identified in the tweets not containing misinformation, three had *worry* among their salient terms.
 
 ![Non-Misinformation topics](https://github.com/user-attachments/assets/69da75a3-5501-497b-be25-4c24c19d7326)
