@@ -23,11 +23,11 @@ Out of the nine topics identified in the misinformation tweets, seven included *
 #### Non-Misinformation Topics
 Out of the five topics identified in the tweets not containing misinformation, three had *worry* among their salient terms.
 
-![Non-Misinformation topics](https://github.com/user-attachments/assets/69da75a3-5501-497b-be25-4c24c19d7326)
+![image](https://github.com/user-attachments/assets/72b0e127-6562-4b62-8096-1fe17d50665b)
 
 ### Network analysis
 Using a custom metric to calculate misinformation impact, the network analysis shows that the 15 most impactful misinformers together represented just over 50% of the total misintormation impact represented in the dataset.
-![Pareta Chart of Misinformer Impact](https://github.com/user-attachments/assets/f18ce6e1-a4ce-41f5-9152-bdc9299cf723)
+![image](https://github.com/user-attachments/assets/82c8a1ad-035b-476e-b065-25f56579fe5d)
 
 ## Repository Content
 * [Vaccine Misinformation - A Twitter Pandemic. Report](https://olaklingberg.github.io/Vaccine-Misinformation/Vaccine%20Misinformation%20%E2%80%93%20A%20Twitter%20Pandemic.%20Report.pdf)
