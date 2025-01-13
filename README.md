@@ -92,9 +92,9 @@ A has 10,000 followers and posts two misinformation tweets.
 
 One of the tweets is retweeted by B, who has 3,000 followers. The other tweet is also retweeted by B, and also by C, who has 800 followers.
 * Retweeted impact:
-* * Tweet 1: 3,000
-* * Tweet 2: 3,000 + 800 = 3,800
-* * Total Retweeted Impact: 3,000 + 3,800 = 6,800
+  * Tweet 1: 3,000
+  * Tweet 2: 3,000 + 800 = 3,800
+  * Total Retweeted Impact: 3,000 + 3,800 = 6,800
 * Total misinformation impact: 20,000 (direct impact) + 6,800 (retweeted impact) = 28,600.
 
 While this number approximates the total number of times that A has reached someone else with a misinformation tweet, all those tweets will of course not actually be read.
