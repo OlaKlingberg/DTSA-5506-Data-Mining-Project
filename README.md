@@ -23,7 +23,7 @@ Out of the five topics identified in the tweets not containing misinformation, t
 
 ### Network analysis
 Using a custom metric to calculate misinformation impact, the network analysis shows that the 15 most impactful misinformers together represented just over 50% of the total misintormation impact represented in the dataset.
-![Pareta Chart of Misinformer Impact](https://github.com/user-attachments/assets/7c7142c4-29d7-469a-a51e-fae0bde43979)
+![Pareta Chart of Misinformer Impact](https://github.com/user-attachments/assets/f18ce6e1-a4ce-41f5-9152-bdc9299cf723)
 
 ## Repository Content
 * [Vaccine Misinformation - A Twitter Pandemic. Report](https://olaklingberg.github.io/Vaccine-Misinformation/Vaccine%20Misinformation%20%E2%80%93%20A%20Twitter%20Pandemic.%20Report.pdf)
