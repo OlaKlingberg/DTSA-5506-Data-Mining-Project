@@ -1,12 +1,23 @@
 # Vaccine Misinformation – A Twitter Pandemic
-Final project in the course *Data Mining Project* (DTSA-5506), at University of Colorado Boulder.
 
-## ABSTRACT 
-In this project, I investigate tweets containing misinformation about the COVID-19 vaccines. 
+## Background
+This project was developed for the course *Data Mining Project* (DTSA-5506), at University of Colorado Boulder.
 
-The project has two parts: 
-* In the first part, I use topic modeling, a natural language processing technique, to extract the main topics making up this misinformation, and compare them to the topics in vaccine-related tweets that don’t contain misinformation.
-* In the second part, I use network analysis to examine how and to what extent the main spreaders of vaccine misinformation are connected to each other through retweeting. I use a custom metric to compare how much each account contributes to the spread of the information, and I show that just 15 accounts are responsible for over 50% of the total spread. These insights are valuable when planning public-information campaigns and other measures to counter vaccine misinformation. 
+## Description
+The project investigates the dissemination of COVID-19 vaccine misinformation on Twitter (now renamed X) from December 1, 2020 till July 31, 2021.
+
+## Data Source
+The data comes from the study [ANTi-Vax: a novel Twitter dataset for COVID-19 vaccine misinformation detection](https://www.sciencedirect.com/science/article/pii/S0033350621004534?via%3Dihub) and can be accessed from [github.com/sakibsh/ANTIVax](https://github.com/sakibsh/ANTiVax).
+
+## Key features
+* **Topic Modeling**: Applies **Latent Dirichlet Allocation (LDA)** to identify and compare prevalent topics in tweets containing misinformation versus those without.
+* **Network Analysis**: Constructs and analyzes a network of the main spreaders of vaccine misinformation to understand their influence and reach.
+
+## Key Results
+* Among the takeways from the topic modeling were:
+ * Out of the nine topics identified in the misinformation tweets, seven included *experimental* among their salient terms, indicating the degree to which the idea that the vaccines were experimental dominated the misinformation.
+ * Out of the five topics identified in the tweets not containing misinformation, three had *worry* among their salient terms.
+* The network analysis showed that 15 accounts together stood for just over 50% of the total misintormation impact represented in the dataset.
 
 ## Repository Content
 * [Vaccine Misinformation - A Twitter Pandemic. Report](https://olaklingberg.github.io/Vaccine-Misinformation/Vaccine%20Misinformation%20%E2%80%93%20A%20Twitter%20Pandemic.%20Report.pdf)
