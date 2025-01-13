@@ -103,6 +103,7 @@ All tweeters in the dataset were ranked in descending order based on their misin
 
 ## EVALUATION
 ### Topic Modeling
+#### Misinformation Tweets
 Based on the LDA analysis, the following topics have been found in the misinformation subset of the labeled vaccine-misinformation dataset:
 * Topic 1—Experimental and untested: experimental, untested, virus, rushed;
 * Topic 2—Experimental therapy: experimental, therapy, gene, long, term, mRNA;
@@ -119,6 +120,7 @@ Based on the LDA analysis, the following topics have been found in the misinform
 **Figure 1.** Latent Dirichlet Allocation topics and salient words in the misinformation subset of the labeled
 vaccine-misinformation dataset. [Link to interactive chart](https://olaklingberg.github.io/Vaccine-Misinformation/visualized_clusters_2024-12-10_0048.html#topic=0&lambda=1&term=).
 
+#### Non-Misinformation Tweets
 Based on the LDA analysis, the following topics have been found in the non-misinformation subset of the labeled vaccine-misinformation dataset:
 * Topic 1—Got the shot: got, first, dose, second, today, shot;
 * Topic 2—Vaccinated and grateful: vaccinated, grateful, thank, vaccination;
