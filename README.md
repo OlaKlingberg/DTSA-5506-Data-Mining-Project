@@ -32,7 +32,7 @@ Using a custom metric to calculate misinformation impact, the network analysis s
 
 
 # Full Report
-** ABSTRACT
+## ABSTRACT
 In this project, I investigate tweets containing misinformation about the COVID-19 vaccines. 
 
 The project has two parts: 
@@ -79,49 +79,66 @@ The sets of topics generated with LDA were evaluated using C_v and C_npmi scores
 ### Network Analysis
 The network analysis is focused on the vaccine-misinformation tweets, the tweeters behind them, and the accounts that retweeted them. 
 Standard centrality measures for networks, such as eigenvector centrality or pagerank, show how influential the members of the network are compared to each other. But that is not exactly the focus here. Rather, what is of interest here is what portion of the total spread of vaccine misinformation in the dataset each member is responsible for. To measure this, a fairly simple custom metric was used, which we will call misinformation impact. Misinformation impact estimates the total number of instances of a particular member reaching someone else with a misinformation tweet. The metric is made up of two parts: direct impact, and retweeted impact. 
-Direct impact
+
+#### Direct impact
 The number of misinformation tweets the tweeter has posted, multiplied by the tweeter’s follower count.
-Retweeted impact
+
+#### Retweeted impact
 The sum of a retweeter’s follower count, for each retweet.
-Example
+
+#### Example
 A has 10,000 followers and posts two misinformation tweets. 
-Direct impact: 10,000 * 2 = 20,000.
+* Direct impact: 10,000 * 2 = 20,000.
+
 One of the tweets is retweeted by B, who has 3,000 followers. The other tweet is also retweeted by B, and also by C, who has 800 followers.
-Retweeted impact:
-Tweet 1: 3,000
-Tweet 2: 3,000 + 800 = 3,800
-Total Retweeted Impact: 3,000 + 3,800 = 6,800
-Total misinformation impact: 20,000 (direct impact) + 6,800 (retweeted impact) = 28,600.
+* Retweeted impact:
+ * Tweet 1: 3,000
+ * Tweet 2: 3,000 + 800 = 3,800
+ * Total Retweeted Impact: 3,000 + 3,800 = 6,800
+* Total misinformation impact: 20,000 (direct impact) + 6,800 (retweeted impact) = 28,600.
+
 While this number approximates the total number of times that A has reached someone else with a misinformation tweet, all those tweets will of course not actually be read.
+
 All tweeters in the dataset were ranked in descending order based on their misinformation impact. A network was built out of the 100 most impactful misinformers, along with any account that retweeted one of their misinformation tweets, as long as the retweeter had a follower count of at least 10,000. 
-EVALUATION
-Topic Modeling
+
+## EVALUATION
+### Topic Modeling
 Based on the LDA analysis, the following topics have been found in the misinformation subset of the labeled vaccine-misinformation dataset:
-Topic 1—Experimental and untested: experimental, untested, virus, rushed;
-Topic 2—Experimental therapy: experimental, therapy, gene, long, term, mRNA;
-Topic 3—Experimental gene therapy: experimental, gene, therapy, Pfizer, child;
-Topic 4—Experimental gene therapy: gene, therapy, experimental, mRNA, Pfizer, government;
-Topic 5—Depopulation and Bill Gates: depopulation, Gates, Bill, poison, agenda;
-Topic 6—Experimental gene therapy: experimental, gene, therapy, Pfizer, research;
-Topic 7—Experimental therapy and Freedom and force: experimental, person, free, force;
-Topic 8—Experimental gene therapy: experimental, Pfizer, gene, therapy, death, vaccinate, Moderna;
-Topic 9—Bioweapon and Depopulation: bioweapon, therapy, gene, depopulation, immunity, herd;
+* Topic 1—Experimental and untested: experimental, untested, virus, rushed;
+* Topic 2—Experimental therapy: experimental, therapy, gene, long, term, mRNA;
+* Topic 3—Experimental gene therapy: experimental, gene, therapy, Pfizer, child;
+* Topic 4—Experimental gene therapy: gene, therapy, experimental, mRNA, Pfizer, government;
+* Topic 5—Depopulation and Bill Gates: depopulation, Gates, Bill, poison, agenda;
+* Topic 6—Experimental gene therapy: experimental, gene, therapy, Pfizer, research;
+* Topic 7—Experimental therapy and Freedom and force: experimental, person, free, force;
+* Topic 8—Experimental gene therapy: experimental, Pfizer, gene, therapy, death, vaccinate, Moderna;
+* Topic 9—Bioweapon and Depopulation: bioweapon, therapy, gene, depopulation, immunity, herd;
+
+![Misinformation Topics](https://github.com/user-attachments/assets/77cbb0e3-fc35-45f0-bb29-45df00274579)
+
+Figure 1. Latent Dirichlet Allocation topics and salient words in the misinformation subset of the labeled
+vaccine-misinformation dataset. [Link to interactive chart](https://olaklingberg.github.io/Vaccine-Misinformation/visualized_clusters_2024-12-10_0048.html#topic=0&lambda=1&term=).
+
 Based on the LDA analysis, the following topics have been found in the non-misinformation subset of the labeled vaccine-misinformation dataset:
-Topic 1—Got the shot: got, first, dose, second, today, shot;
-Topic 2—Vaccinated and grateful: vaccinated, grateful, thank, vaccination;
-Topic 3—Worry and excitement: worry, excited, parent, appointment;
-Topic 4—Worry: worry, need, ever, vaccination, drink
-Topic 5—Worry and Mask: worry, ever, need, wear mask, social
+* Topic 1—Got the shot: got, first, dose, second, today, shot;
+* Topic 2—Vaccinated and grateful: vaccinated, grateful, thank, vaccination;
+* Topic 3—Worry and excitement: worry, excited, parent, appointment;
+* Topic 4—Worry: worry, need, ever, vaccination, drink
+* Topic 5—Worry and Mask: worry, ever, need, wear mask, social
+
+![Non-Misinformation Topics](https://github.com/user-attachments/assets/c03328ee-4cb7-4ab9-83fd-003caa31a4c0)
+
+Figure 2. Latent Dirichlet Allocation topics and salient words in the non-misinformation subset of the labeled
+vaccine-misinformation dataset. [Link to interactive chart](https://olaklingberg.github.io/Vaccine-Misinformation/visualized_clusters_2024-12-10_0008.html).
+
 The lists of topics in the non-misinformation and the misinformation subsets are quite distinct from each other, without any apparent overlap. Within the lists, on the other hand, there is a lot of overlap among the topics, even between topics that appear distinct from each other in the Intertopic Distance Map (next page). It seems that the idea of the vaccines being experimental plays such a large part in the misinformation conversation that it is not just included, but actually dominates, most of the topics. It would probably make sense to merge topics 2, 3, 4, and 8 into one topic: Experimental gene therapy: experimental, gene, mRNA, Pfizer, death.
+
 The non-misinfo topics show perfect separation in the Intertopic Distance Map, but the list of topic labels nevertheless shows “worry” being the most salient term in three out of five topics.
 
 
 
-Figure 1. Latent Dirichlet Allocation topics and salient words in the misinformation subset of the labeled vaccine-misinformation dataset. Link to interactive chart.
 
 
-
-Figure 2. Latent Dirichlet Allocation topics and salient words in the non-misinformation subset of the labeled vaccine-misinformation dataset. Link to interactive chart.
 
 Network Analysis
 The Pareto chart below shows the 15 tweeters with the largest misinformation impact, as defined above. As can be seen in the chart, these 15 tweeters together account for just over 50% of the total misinformation impact in the dataset.
