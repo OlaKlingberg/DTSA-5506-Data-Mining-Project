@@ -25,7 +25,7 @@ In this context it’s important to note that not all vaccine hesitancy is based
 A note about terminology: the sets of tweets in this study come from 2020 and 2021, when the social-media platform was still called Twitter. I will therefore refer to it as Twitter, and to the posts as tweets, except when referring to the company today, when I will call it by its current name: X.
 
 ## RELATED WORK
-Hayawi et al.[2] present what they believe is the first dataset for detecting COVID-19 vaccine-related misinformation. The dataset consists of two subsets:
+Hayawi et al.[2](7apL33s).6bMCz8) present what they believe is the first dataset for detecting COVID-19 vaccine-related misinformation. The dataset consists of two subsets:
 * 15M unlabeled vaccine-related tweets, from December 1, 2020 till July 31, 2021.
 * 15k vaccine-related tweets, manually labeled based on whether or not they contain misinformation, from the same time period.
 
