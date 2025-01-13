@@ -143,11 +143,13 @@ The Pareto chart below shows the 15 tweeters with the largest misinformation imp
 ![Pareta Chart of Misinformer Impact](https://github.com/user-attachments/assets/64d134bb-0528-4b41-b795-a798b72f9ce0)
 
 A word of caution: in the first calculation of misinformation impact, the most impactful misinformer turned out to be Forbes, which is the account of Forbes Magazine. This was due to the size of their follower count, 20M, and three tweets with identical texts, which Hayawi et al.[2] had labeled as misinformation. After inspecting these tweets, I consider them mislabeled. They read: “Here are the differences between the Pfizer/BioNTech and Moderna Covid-19 vaccines and gene therapy”, and link to a Forbes Magazine article, with the headline “Covid-19 mRNA Vaccines Are Not ‘Gene Therapy,’ As Some Are Claiming.” The belief that mRNA vaccines constitute a form of ‘gene therapy’ is one of the common misconceptions about the COVID-19 vaccines. But these tweets don’t spread that misconception; rather, they refute it. Because of this, I removed Forbes from the analysis, but there is a further warning here: Once automated methods have yielded a small number of tweeters or tweets as being of special interest, it’s important to have these inspected, or re-inspected, manually by domain experts. 
+
+![Pareta Chart of Misinformer Impact](https://github.com/user-attachments/assets/4aa372e3-8f68-4c6e-8c4c-1e4947092008)
 **Figure 3.** Pareto Chart of Misinformer Impact
 
 The network graph below shows the most impactful misinformers, along with their most important retweeters. Accounts that posted original misinformation tweets are shown in red (whether or not they also retweeted others’ tweets). Accounts that didn’t post any of the original misinformation tweets in the dataset, but only retweeted others’, are shown in gray. The size of the nodes are proportional to the square root of the number of followers the account has. Isolated nodes, of which there are four in the graph, represent accounts that are among the 15 most impactful misinformers, but who had no retweets that qualified for inclusion in this graph (i.e. any retweeters they may have had less than 10,000 followers).
 
-![Network Graph](https://github.com/user-attachments/assets/20c90f5e-277e-417b-9f04-21a049ba6be4)
+![Network graph of the most impactful misinformers](https://github.com/user-attachments/assets/57cc619d-89fc-413d-afdc-25a5ad8bd205)
 **Figure 4.** Network of the most impactful misinformers, along with retweeters having at least 10,000 followers. Link to interactive graph.
 
 A couple of observations that can immediately be drawn from the graph:
