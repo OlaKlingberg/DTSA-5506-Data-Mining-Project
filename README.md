@@ -14,10 +14,17 @@ The data comes from the study [ANTi-Vax: a novel Twitter dataset for COVID-19 va
 * **Network Analysis**: Constructs and analyzes a network of the main spreaders of vaccine misinformation to understand their influence and reach.
 
 ## Key Results
-* Among the takeways from the topic modeling were:
- * Out of the nine topics identified in the misinformation tweets, seven included *experimental* among their salient terms, indicating the degree to which the idea that the vaccines were experimental dominated the misinformation.
- * Out of the five topics identified in the tweets not containing misinformation, three had *worry* among their salient terms.
-* The network analysis showed that 15 accounts together stood for just over 50% of the total misintormation impact represented in the dataset.
+
+### Topic modeling
+Out of the nine topics identified in the misinformation tweets, seven included *experimental* among their salient terms, indicating the degree to which the idea that the vaccines were experimental dominated the misinformation.
+[Misinformation topics](https://github.com/user-attachments/assets/8638cbed-3c84-49f9-9936-93a1f31c3704)
+
+Out of the five topics identified in the tweets not containing misinformation, three had *worry* among their salient terms.
+![image](https://github.com/user-attachments/assets/69da75a3-5501-497b-be25-4c24c19d7326)
+
+### Network analysis
+Using a custom metric to calculate misinformation impact, the network analysis shows that the 15 most impactful misinformers together represented just over 50% of the total misintormation impact represented in the dataset.
+![Pareta Chart of Misinformer Impact](https://github.com/user-attachments/assets/7c7142c4-29d7-469a-a51e-fae0bde43979)
 
 ## Repository Content
 * [Vaccine Misinformation - A Twitter Pandemic. Report](https://olaklingberg.github.io/Vaccine-Misinformation/Vaccine%20Misinformation%20%E2%80%93%20A%20Twitter%20Pandemic.%20Report.pdf)
